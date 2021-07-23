@@ -148,7 +148,6 @@ public class Controller {
     @FXML
     void autoLearning(){
         int iterations = Integer.parseInt(countIterations.getText());
-
         for (int i = 0; i < iterations; i++) {
             autoLearn();
         }
