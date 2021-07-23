@@ -5,10 +5,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Controller {
@@ -28,6 +30,7 @@ public class Controller {
     //штучний інтелект
     private NeuralNetwork neuralNetwork;
 
+    private int randNumb;
     private int numbAutoLearn;
     private int outputNeuronNetwork;
     private double[] result;
@@ -45,26 +48,13 @@ public class Controller {
     @FXML
     void loadImage() {
         FileChooser fileChooser = new FileChooser();
-
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Png files (*.png)", "*.png");
         fileChooser.getExtensionFilters().add(extFilter);
 
-        File file = fileChooser.showOpenDialog(stage);
-        this.image = new Image("file:" + file.getAbsolutePath());
-        imageView.setImage(this.image);
+        this.image = new Image("file:" + fileChooser.showOpenDialog(stage).getAbsolutePath());
 
         //формування початкових даних для ШІ та початкове опрацювання їх, для внесення до діапазону від 0,01 до 1,001
-        PixelReader pixelReader = image.getPixelReader();
-        double value;
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                value = pixelReader.getArgb(j, i) / -16777216.0 + 0.001;
-                if (value < 0.01) {
-                    value = 0.01;
-                }
-                inputs[i * 30 + j] = value;
-            }
-        }
+        drawImage();
     }
 
     public void setStage(Stage stage) {
@@ -77,6 +67,7 @@ public class Controller {
     @FXML
     void query() {
         result = neuralNetwork.query(inputs);
+
         int number = 0;
         double max = 0;
 
@@ -112,34 +103,21 @@ public class Controller {
     /**
      * функція, що автоматично тренує ШІ
      */
-    void autoLearn(){
-        int n;
+    private void autoLearn(){
         Random random = new Random();
-        n = random.nextInt(6);
+        randNumb = random.nextInt(5);
         numbAutoLearn = random.nextInt(10);
         trueAnswerTextField.setText(String.valueOf(numbAutoLearn));
+        this.image = new Image(new File("images/" + numbAutoLearn + "_" + randNumb + ".png").toURI().toString());
 
-        String str = "images/" + numbAutoLearn + "_" + n + ".png";
-        this.image = new Image(new File(str).toURI().toString());
-        imageView.setImage(this.image);
-
-        PixelReader pixelReader = image.getPixelReader();
-        double value;
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                value = pixelReader.getArgb(j, i) / -16777216.0 + 0.001;
-                if (value < 0.01) {
-                    value = 0.01;
-                }
-                inputs[i * 30 + j] = value;
-            }
-        }
+        drawImage();
 
         query();
-        while(result[numbAutoLearn] >= 0.9) {
+        while(numbAutoLearn != outputNeuronNetwork) {
             train();
             query();
         }
+        System.out.println(Arrays.toString(result));
     }
 
     /**
@@ -150,6 +128,24 @@ public class Controller {
         int iterations = Integer.parseInt(countIterations.getText());
         for (int i = 0; i < iterations; i++) {
             autoLearn();
+        }
+    }
+
+    /**
+     * Відображення зображення на формі і формування вхідних даних
+     */
+    private void drawImage(){
+        imageView.setImage(this.image);
+
+        PixelReader pixelReader = image.getPixelReader();
+        double value;
+        for (int i = 0; i < image.getHeight(); i++) {
+            for (int j = 0; j < image.getWidth(); j++) {
+                value = pixelReader.getArgb(j, i) / -16777216.0 + 0.01;
+                inputs[i * 30 + j] = value;
+                Color color = pixelReader.getColor(j, i);
+                color.hashCode();
+            }
         }
     }
 }
