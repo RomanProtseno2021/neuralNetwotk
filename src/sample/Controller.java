@@ -30,6 +30,7 @@ public class Controller {
 
     private int numbAutoLearn;
     private int outputNeuronNetwork;
+    private double[] result;
 
     @FXML
     void initialize() {
@@ -75,7 +76,7 @@ public class Controller {
      */
     @FXML
     void query() {
-        double[] result = neuralNetwork.query(inputs);
+        result = neuralNetwork.query(inputs);
         int number = 0;
         double max = 0;
 
@@ -135,7 +136,7 @@ public class Controller {
         }
 
         query();
-        while(outputNeuronNetwork != numbAutoLearn) {
+        while(result[numbAutoLearn] >= 0.9) {
             train();
             query();
         }
@@ -145,7 +146,7 @@ public class Controller {
      * функція, що автоматично тренує ШІ, кількість сетів тренування вказує користувач на формі
      */
     @FXML
-    void auroLearning(){
+    void autoLearning(){
         int iterations = Integer.parseInt(countIterations.getText());
 
         for (int i = 0; i < iterations; i++) {
