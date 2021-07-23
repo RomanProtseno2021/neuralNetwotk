@@ -114,7 +114,7 @@ public class Controller {
     void autoLearn(){
         int n;
         Random random = new Random();
-        n = random.nextInt(5);
+        n = random.nextInt(6);
         numbAutoLearn = random.nextInt(10);
         trueAnswerTextField.setText(String.valueOf(numbAutoLearn));
 
