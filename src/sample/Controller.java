@@ -35,11 +35,14 @@ public class Controller {
     private int outputNeuronNetwork;
     private double[] result;
 
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_RESET = "\u001B[0m";
+
     @FXML
     void initialize() {
         //створення та ініціалізація штучного інтелекту при завантаженні форми
         this.neuralNetwork = new NeuralNetwork();
-        neuralNetwork.init(900, 900, 10, 0.3);
+        neuralNetwork.init(900, 100, 10, 0.25);
     }
 
     /**
@@ -105,19 +108,17 @@ public class Controller {
      */
     private void autoLearn(){
         Random random = new Random();
-        randNumb = random.nextInt(5);
+        randNumb = random.nextInt(6);
         numbAutoLearn = random.nextInt(10);
         trueAnswerTextField.setText(String.valueOf(numbAutoLearn));
         this.image = new Image(new File("images/" + numbAutoLearn + "_" + randNumb + ".png").toURI().toString());
 
         drawImage();
-
         query();
         while(numbAutoLearn != outputNeuronNetwork) {
             train();
             query();
         }
-        System.out.println(Arrays.toString(result));
     }
 
     /**
@@ -129,6 +130,7 @@ public class Controller {
         for (int i = 0; i < iterations; i++) {
             autoLearn();
         }
+        drawImage();
     }
 
     /**
@@ -141,10 +143,12 @@ public class Controller {
         double value;
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
-                value = pixelReader.getArgb(j, i) / -16777216.0 + 0.01;
+                if(pixelReader.getArgb(j, i) <= -4000) {
+                    value = 0.99;
+                } else {
+                    value = 0.01;
+                }
                 inputs[i * 30 + j] = value;
-                Color color = pixelReader.getColor(j, i);
-                color.hashCode();
             }
         }
     }
