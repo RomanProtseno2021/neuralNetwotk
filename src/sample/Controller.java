@@ -1,5 +1,8 @@
 package sample;
 
+import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -8,6 +11,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.Arrays;
@@ -35,11 +39,14 @@ public class Controller {
     private int outputNeuronNetwork;
     private double[] result;
 
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_RESET = "\u001B[0m";
+
     @FXML
     void initialize() {
         //створення та ініціалізація штучного інтелекту при завантаженні форми
         this.neuralNetwork = new NeuralNetwork();
-        neuralNetwork.init(900, 900, 10, 0.3);
+        neuralNetwork.init(900, 90, 10, 0.3);
     }
 
     /**
@@ -50,8 +57,7 @@ public class Controller {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Png files (*.png)", "*.png");
         fileChooser.getExtensionFilters().add(extFilter);
-
-        this.image = new Image("file:" + fileChooser.showOpenDialog(stage).getAbsolutePath());
+        image = new Image("file:" + fileChooser.showOpenDialog(stage).getAbsolutePath());
 
         //формування початкових даних для ШІ та початкове опрацювання їх, для внесення до діапазону від 0,01 до 1,001
         drawImage();
@@ -70,13 +76,15 @@ public class Controller {
 
         int number = 0;
         double max = 0;
-
+        System.out.print("Neuron Network outputs:  ");
         for (int i = 0; i < result.length; i++) {
             if (max <= result[i]) {
                 max = result[i];
                 number = i;
             }
+            System.out.printf("(" + i + ") - " + String.format("%.3f",result[i]) + " , ");
         }
+        System.out.println();
         answerTextField.setText(String.valueOf(number));
         outputNeuronNetwork = number;
     }
@@ -103,48 +111,52 @@ public class Controller {
     /**
      * функція, що автоматично тренує ШІ
      */
-    private void autoLearn(){
+    private void autoLearn() {
         Random random = new Random();
-        randNumb = random.nextInt(5);
+        randNumb = random.nextInt(7);
         numbAutoLearn = random.nextInt(10);
+
         trueAnswerTextField.setText(String.valueOf(numbAutoLearn));
-        this.image = new Image(new File("images/" + numbAutoLearn + "_" + randNumb + ".png").toURI().toString());
+        image = new Image(new File("images/" + numbAutoLearn + "_" + randNumb + ".png").toURI().toString());
 
         drawImage();
-
         query();
-        while(numbAutoLearn != outputNeuronNetwork) {
+        while (numbAutoLearn != outputNeuronNetwork) {
             train();
             query();
         }
-        System.out.println(Arrays.toString(result));
     }
 
     /**
      * функція, що автоматично тренує ШІ, кількість сетів тренування вказує користувач на формі
      */
     @FXML
-    void autoLearning(){
+    void autoLearning() {
         int iterations = Integer.parseInt(countIterations.getText());
-        for (int i = 0; i < iterations; i++) {
-            autoLearn();
-        }
+        new Thread(() -> {
+            try {
+                for (int i = 0; i < iterations; i++) {
+                    Thread.sleep(500);
+                    Platform.runLater(() -> autoLearn());
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }).start();
     }
 
     /**
      * Відображення зображення на формі і формування вхідних даних
      */
-    private void drawImage(){
-        imageView.setImage(this.image);
-
+    private void drawImage() {
+        imageView.setImage(image);
         PixelReader pixelReader = image.getPixelReader();
         double value;
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
-                value = pixelReader.getArgb(j, i) / -16777216.0 + 0.01;
+                value = pixelReader.getArgb(j,i) / -16777216.0 + 0.001;
                 inputs[i * 30 + j] = value;
-                Color color = pixelReader.getColor(j, i);
-                color.hashCode();
             }
         }
     }
