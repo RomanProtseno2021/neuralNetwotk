@@ -76,13 +76,15 @@ public class Controller {
 
         int number = 0;
         double max = 0;
-
+        System.out.print("Neuron Network outputs:  ");
         for (int i = 0; i < result.length; i++) {
             if (max <= result[i]) {
                 max = result[i];
                 number = i;
             }
+            System.out.printf("(" + i + ") - " + String.format("%.3f",result[i]) + " , ");
         }
+        System.out.println();
         answerTextField.setText(String.valueOf(number));
         outputNeuronNetwork = number;
     }
@@ -151,16 +153,11 @@ public class Controller {
         imageView.setImage(image);
         PixelReader pixelReader = image.getPixelReader();
         double value;
-        Color color;
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
-                //value = pixelReader.getArgb(j,i) / -16777216.0 + 0.001;
-                color = pixelReader.getColor(j,i);
-                value = color.getBlue() / 255.0 + color.getGreen() / 2550.0 + color.getBlue() / 25500.0 + 0.0001;
+                value = pixelReader.getArgb(j,i) / -16777216.0 + 0.001;
                 inputs[i * 30 + j] = value;
-                System.out.print(value + "  ");
             }
-            System.out.println();
         }
     }
 }
