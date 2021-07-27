@@ -3,9 +3,6 @@ package sample;
 import static java.lang.Math.pow;
 
 public class NeuralNetwork {
-    private int inputNodes;
-    private int hiddenNodes;
-    private int outputNodes;
     private double learningRate;
 
     private double[][] w_hiddenOutput;
@@ -25,9 +22,6 @@ public class NeuralNetwork {
      * @param learningRate швидкість навчання
      */
     public void init(int inputNodes, int hiddenNodes, int outputNodes, double learningRate) {
-        this.inputNodes = inputNodes;
-        this.hiddenNodes = hiddenNodes;
-        this.outputNodes = outputNodes;
         this.learningRate = learningRate;
         this.w_hiddenOutput = new double[outputNodes][hiddenNodes];
         this.w_inputHidden = new double[hiddenNodes][inputNodes];

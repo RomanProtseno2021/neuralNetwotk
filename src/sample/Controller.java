@@ -46,7 +46,7 @@ public class Controller {
     void initialize() {
         //створення та ініціалізація штучного інтелекту при завантаженні форми
         this.neuralNetwork = new NeuralNetwork();
-        neuralNetwork.init(900, 90, 10, 0.3);
+        neuralNetwork.init(900, 128, 10, 0.3);
     }
 
     /**
